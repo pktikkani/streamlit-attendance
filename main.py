@@ -5,8 +5,7 @@ import streamlit as st
 from authlib.integrations.base_client.errors import OAuthError
 from authlib.integrations.requests_client import OAuth2Session
 from dotenv import load_dotenv
-from data import c, conn, create_attendance_table
-
+import sqlite3
 
 # Load environment variables and set up OAuth client
 load_dotenv('.env')
@@ -17,6 +16,16 @@ OKTA_AUTHORIZATION_ENDPOINT = os.environ['OKTA_AUTHORIZATION_ENDPOINT']
 OKTA_TOKEN_ENDPOINT = os.environ['OKTA_TOKEN_ENDPOINT']
 OKTA_USERINFO_ENDPOINT = os.environ['OKTA_USERINFO_ENDPOINT']
 client = OAuth2Session(OKTA_CLIENT_ID, OKTA_CLIENT_SECRET, redirect_uri=REDIRECT_URI)
+
+
+
+conn = sqlite3.connect('attendance.db')
+c = conn.cursor()
+
+def create_attendance_table():
+    c.execute('''CREATE TABLE IF NOT EXISTS attendance
+             (name TEXT, email TEXT, date TEXT)''')
+    conn.commit()
 
 
 # Custom CSS
