@@ -1,10 +1,12 @@
+import logging
 import os
 from datetime import date
-from data import c, conn, create_attendance_table
 import streamlit as st
-from dotenv import load_dotenv
-from authlib.integrations.requests_client import OAuth2Session
 from authlib.integrations.base_client.errors import OAuthError
+from authlib.integrations.requests_client import OAuth2Session
+from dotenv import load_dotenv
+from data import c, conn, create_attendance_table
+
 
 # Load environment variables and set up OAuth client
 load_dotenv('.env')
@@ -24,7 +26,7 @@ def load_css():
   .big-font {
       font-size:30px !important;
       font-weight: bold;
-  }
+  } 
   .stButton>button {
       color: #4F8BF9;
       border-radius: 50px;
@@ -41,7 +43,7 @@ if "logged_in" not in st.session_state:
 
 
 def login():
-    st.markdown("<h1 style='text-align: center;'>Welcome to Our App</h1>", unsafe_allow_html=True)
+    st.markdown("<h1 style='text-align: center;'>Welcome to AYS Attendance App</h1>", unsafe_allow_html=True)
 
     authorization_url, state = client.create_authorization_url(
         OKTA_AUTHORIZATION_ENDPOINT,
@@ -78,7 +80,7 @@ def logout():
     with col2:
         if st.button("Log out"):
             st.session_state.logged_in = False
-            st.session_state.pop('user', None)
+            st.query_params.clear()
             st.rerun()
 
 
@@ -103,13 +105,8 @@ def user_attendance():
 login_page = st.Page(login, title="Log in", icon=":material/login:")
 logout_page = st.Page(logout, title="Log out", icon=":material/logout:")
 user_attendance_page = st.Page(user_attendance, title="User Attendance")
-# reports = st.Page(reports, title="Reports", icon=":material/history:")
-
-dashboard = st.Page(
-    "tools/dashboard.py", title="Dashboard", icon=":material/dashboard:"
-)
-
 reports = st.Page("tools/reports.py", title="Reports", icon="📊")
+
 
 def main():
     load_css()
@@ -122,7 +119,7 @@ def main():
         pg = st.navigation(
             {
                 "Account": [logout_page],
-                "Tools": [dashboard, reports],
+                "Tools": [reports],
             }
         )
     else:
@@ -133,3 +130,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
