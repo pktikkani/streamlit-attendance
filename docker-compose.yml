@@ -1,0 +1,25 @@
+version: '3'
+
+services:
+  streamlit-attendance:
+    build: .
+    image: st-attendance:latest
+    container_name: streamlit-attendance
+    ports:
+      - 8501:8501
+    volumes:
+      - .:/app
+    environment:
+      - REDIRECT_URI = "http://0.0.0.0:8501"
+      - OKTA_CLIENT_ID = '0oahau6kyfj6KUjX6697'
+      - OKTA_CLIENT_SECRET = 'unLaiMqoX6xMDK_gAn3p_rFWWVWteddtETWxceBd1TdUK5UNBAzDxfdoG5MrpRIq'
+      - OKTA_AUTHORIZATION_ENDPOINT = 'https://trial-1011181.okta.com/oauth2/default/v1/authorize'
+      - OKTA_TOKEN_ENDPOINT = 'https://trial-1011181.okta.com/oauth2/default/v1/token'
+      - OKTA_USERINFO_ENDPOINT = 'https://trial-1011181.okta.com/oauth2/default/v1/userinfo'
+
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "http://localhost:8501/_stcore/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: always
