@@ -5,6 +5,7 @@ from authlib.integrations.base_client.errors import OAuthError
 from authlib.integrations.requests_client import OAuth2Session
 from dotenv import load_dotenv
 import sqlite3
+from streamlit_searchbox import st_searchbox
 
 # Load environment variables and set up OAuth client
 load_dotenv('.env')
@@ -18,6 +19,11 @@ client = OAuth2Session(OKTA_CLIENT_ID, OKTA_CLIENT_SECRET, redirect_uri=REDIRECT
 
 conn = sqlite3.connect('attendance.db')
 c = conn.cursor()
+
+
+def show_emails():
+    c.execute("SELECT email FROM attendance")
+    return [row[0] for row in c.fetchall()]
 
 
 def create_attendance_table():
@@ -94,10 +100,12 @@ def logout():
 def user_attendance():
     st.title("User Attendance")
     with st.form("attendance_form", clear_on_submit=True):
-        name = st.text_input("Enter your name")
-        email = st.text_input("Enter your email")
-        today = date.today().strftime("%Y-%m-%d")
-        st.text(f"Date: {today}")
+        options = show_emails()
+        name = st.text_input("Name")
+        email = st.selectbox("Select Email", options)
+        today = st.date_input("Select Date", value=None)
+        present_date = date.today().strftime("%Y-%m-%d")
+        st.text(f"Date: {present_date}")
         submit_button = st.form_submit_button("Submit Attendance")
     if submit_button:
         if name and email:  # Check if name and email are not empty
@@ -137,4 +145,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

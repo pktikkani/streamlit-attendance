@@ -45,7 +45,7 @@ def reports():
 
     # Recent attendance records
     st.subheader("Recent Attendance Records")
-    recent_records = df.sort_values('date', ascending=False).head(10)
+    recent_records = df.sort_values('date', ascending=True).head(10)
     st.table(recent_records)
 
     # Download full report
