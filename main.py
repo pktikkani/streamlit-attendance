@@ -1,4 +1,3 @@
-import logging
 import os
 from datetime import date
 import streamlit as st
@@ -17,10 +16,9 @@ OKTA_TOKEN_ENDPOINT = os.environ['OKTA_TOKEN_ENDPOINT']
 OKTA_USERINFO_ENDPOINT = os.environ['OKTA_USERINFO_ENDPOINT']
 client = OAuth2Session(OKTA_CLIENT_ID, OKTA_CLIENT_SECRET, redirect_uri=REDIRECT_URI)
 
-
-
 conn = sqlite3.connect('attendance.db')
 c = conn.cursor()
+
 
 def create_attendance_table():
     c.execute('''CREATE TABLE IF NOT EXISTS attendance
