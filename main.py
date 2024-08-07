@@ -5,7 +5,6 @@ from authlib.integrations.base_client.errors import OAuthError
 from authlib.integrations.requests_client import OAuth2Session
 from dotenv import load_dotenv
 import sqlite3
-from streamlit_searchbox import st_searchbox
 
 # Load environment variables and set up OAuth client
 load_dotenv('.env')
@@ -21,16 +20,15 @@ conn = sqlite3.connect('attendance.db')
 c = conn.cursor()
 
 
-def show_emails():
-    c.execute("SELECT email FROM attendance")
-    return [row[0] for row in c.fetchall()]
-
-
 def create_attendance_table():
     c.execute('''CREATE TABLE IF NOT EXISTS attendance
              (name TEXT, email TEXT, date TEXT)''')
     conn.commit()
 
+
+def show_emails():
+    c.execute("SELECT email FROM attendance")
+    return [row[0] for row in c.fetchall()]
 
 # Custom CSS
 def load_css():
@@ -39,7 +37,7 @@ def load_css():
   .big-font {
       font-size:30px !important;
       font-weight: bold;
-  } 
+  }
   .stButton>button {
       color: #4F8BF9;
       border-radius: 50px;
@@ -145,3 +143,7 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+
+
