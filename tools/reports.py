@@ -2,12 +2,14 @@ import sqlite3
 import pandas as pd
 import streamlit as st
 import plotly.express as px
+from main import add_bg_gradient
 
 # Database connection
 conn = sqlite3.connect('attendance.db')
 
 
 def reports():
+    add_bg_gradient()
     st.title("Attendance Reports")
 
     # Fetch all data from the database

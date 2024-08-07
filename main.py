@@ -52,10 +52,20 @@ def load_css():
 if "logged_in" not in st.session_state:
     st.session_state.logged_in = False
 
-
+def add_bg_gradient():
+  st.markdown(
+       f"""
+       <style>
+       .stApp {{
+           background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
+       }}
+       </style>
+       """,
+       unsafe_allow_html=True
+   )
 def login():
-    st.markdown("<h1 style='text-align: center;'>Welcome to AYS Attendance App</h1>", unsafe_allow_html=True)
-
+    st.markdown("<h1 style='text-align: center;'>AYS Attendance</h1>", unsafe_allow_html=True)
+    add_bg_gradient()
     authorization_url, state = client.create_authorization_url(
         OKTA_AUTHORIZATION_ENDPOINT,
         scope="openid"
@@ -64,7 +74,7 @@ def login():
 
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
-        st.link_button("Login with Okta", st.session_state.auth_url)
+        st.link_button("Admin Login", st.session_state.auth_url)
 
 
 def callback():
@@ -87,6 +97,7 @@ def callback():
 
 
 def logout():
+    add_bg_gradient()
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
         if st.button("Log out"):
@@ -97,6 +108,7 @@ def logout():
 
 def user_attendance():
     st.title("User Attendance")
+    add_bg_gradient()
     with st.form("attendance_form", clear_on_submit=True):
         options = show_emails()
         name = st.text_input("Name")
@@ -115,10 +127,31 @@ def user_attendance():
             st.error("Please enter both name and email.")
 
 
-login_page = st.Page(login, title="Log in", icon=":material/login:")
+def registration():
+    add_bg_gradient()
+    st.title("User Registration")
+    with st.form("registration_form", clear_on_submit=True):
+        name = st.text_input("Enter your name")
+        email = st.text_input("Enter your email")
+        today = st.date_input("Select Date", value=None)
+        present_date = date.today().strftime("%Y-%m-%d")
+        st.text(f"Date: {present_date}")
+        submit_button = st.form_submit_button("Submit Registration")
+    if submit_button:
+        if name and email:  # Check if name and email are not empty
+            create_attendance_table()
+            c.execute("INSERT INTO attendance VALUES (?, ?, ?)", (name, email, today))
+            conn.commit()
+            st.success(f"Registration was successful {name}")
+        else:
+            st.error("Please enter both name and email.")
+
+
+login_page = st.Page(login, title="Log in")
 logout_page = st.Page(logout, title="Log out", icon=":material/logout:")
 user_attendance_page = st.Page(user_attendance, title="User Attendance")
 reports = st.Page("tools/reports.py", title="Reports", icon="📊")
+registration = st.Page(registration, title="Registration", icon="📝")
 
 
 def main():
@@ -136,7 +169,7 @@ def main():
             }
         )
     else:
-        pg = st.navigation([login_page, user_attendance_page])
+        pg = st.navigation([login_page, user_attendance_page, registration])
 
     pg.run()
 
