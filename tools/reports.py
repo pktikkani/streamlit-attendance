@@ -5,7 +5,7 @@ import plotly.express as px
 from main import add_bg_gradient
 
 # Database connection
-conn = sqlite3.connect('attendance.db')
+conn = sqlite3.connect('users.db')
 
 
 def reports():
@@ -21,10 +21,10 @@ def reports():
 
     # Group by email and count unique dates
     attendance_summary = df.groupby('email').agg({
-        'name': 'first',  # Get the first name associated with each email
+        # Get the first name associated with each email
         'date': 'nunique'  # Count unique dates for each email
     }).reset_index()
-    attendance_summary.columns = ['Email', 'Name', 'Days Present']
+    attendance_summary.columns = ['Email', 'Days Present']
 
     # Display summary table
     st.subheader("Attendance Summary")
@@ -33,7 +33,7 @@ def reports():
     # Bar chart of attendance
     st.subheader("Attendance Visualization")
     fig = px.bar(attendance_summary, x='Email', y='Days Present', text='Days Present',
-                 hover_data=['Name'], color='Days Present',
+                 hover_data=['Email'], color='Days Present',
                  height=400, title="Days Present by Member")
     fig.update_traces(texttemplate='%{text}', textposition='outside')
     fig.update_layout(uniformtext_minsize=8, uniformtext_mode='hide')
@@ -46,9 +46,9 @@ def reports():
     st.plotly_chart(fig_pie)
 
     # Recent attendance records
-    st.subheader("Recent Attendance Records")
-    recent_records = df.sort_values('date', ascending=True).head(10)
-    st.table(recent_records)
+    # st.subheader("Recent Attendance Records")
+    # recent_records = df.sort_values('date', ascending=True).head(10)
+    # st.table(recent_records)
 
     # Download full report
     csv = df.to_csv(index=False)

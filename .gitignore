@@ -1,3 +1,4 @@
 .env
 .idea
 .devcontainer
+__pycache__

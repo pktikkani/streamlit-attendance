@@ -16,18 +16,23 @@ OKTA_TOKEN_ENDPOINT = os.environ['OKTA_TOKEN_ENDPOINT']
 OKTA_USERINFO_ENDPOINT = os.environ['OKTA_USERINFO_ENDPOINT']
 client = OAuth2Session(OKTA_CLIENT_ID, OKTA_CLIENT_SECRET, redirect_uri=REDIRECT_URI)
 
-conn = sqlite3.connect('attendance.db')
+conn = sqlite3.connect('users.db')
 c = conn.cursor()
 
 
+def create_registration_table():
+    c.execute('''CREATE TABLE IF NOT EXISTS registration
+                 (name TEXT, email TEXT, date TEXT, phone TEXT)''')
+    conn.commit()
+
 def create_attendance_table():
     c.execute('''CREATE TABLE IF NOT EXISTS attendance
-             (name TEXT, email TEXT, date TEXT)''')
+             (email TEXT, date TEXT)''')
     conn.commit()
 
 
 def show_emails():
-    c.execute("SELECT email FROM attendance")
+    c.execute("SELECT email FROM registration")
     return [row[0] for row in c.fetchall()]
 
 # Custom CSS
@@ -111,16 +116,14 @@ def user_attendance():
     add_bg_gradient()
     with st.form("attendance_form", clear_on_submit=True):
         options = show_emails()
-        name = st.text_input("Name")
         email = st.selectbox("Select Email", options)
-        today = st.date_input("Select Date", value=None)
-        present_date = date.today().strftime("%Y-%m-%d")
-        st.text(f"Date: {present_date}")
+        present_date = date.today()
+        today = st.date_input("Select Date", present_date)
         submit_button = st.form_submit_button("Submit Attendance")
     if submit_button:
-        if name and email:  # Check if name and email are not empty
+        if email:  # Check if name and email are not empty
             create_attendance_table()
-            c.execute("INSERT INTO attendance VALUES (?, ?, ?)", (name, email, today))
+            c.execute("INSERT INTO attendance VALUES (?, ?)", (email, today))
             conn.commit()
             st.success("Attendance recorded successfully!")
         else:
@@ -133,14 +136,14 @@ def registration():
     with st.form("registration_form", clear_on_submit=True):
         name = st.text_input("Enter your name")
         email = st.text_input("Enter your email")
-        today = st.date_input("Select Date", value=None)
-        present_date = date.today().strftime("%Y-%m-%d")
-        st.text(f"Date: {present_date}")
+        phone = st.text_input("Enter your phone number")
+        present_date = date.today()
+        today = st.date_input("Select Date", present_date)
         submit_button = st.form_submit_button("Submit Registration")
     if submit_button:
         if name and email:  # Check if name and email are not empty
-            create_attendance_table()
-            c.execute("INSERT INTO attendance VALUES (?, ?, ?)", (name, email, today))
+            create_registration_table()
+            c.execute("INSERT INTO registration VALUES (?, ?, ?, ?)", (name, email, today, phone))
             conn.commit()
             st.success(f"Registration was successful {name}")
         else:
