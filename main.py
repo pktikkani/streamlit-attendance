@@ -57,17 +57,21 @@ def load_css():
 if "logged_in" not in st.session_state:
     st.session_state.logged_in = False
 
+
 def add_bg_gradient():
-  st.markdown(
-       f"""
-       <style>
-       .stApp {{
-           background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
-       }}
-       </style>
-       """,
-       unsafe_allow_html=True
-   )
+    st.markdown(
+        f"""
+           <style>
+           .stApp {{
+               background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
+           }}
+           </style>
+           """,
+        unsafe_allow_html=True
+    )
+    st.query_params.clear()
+
+
 def login():
     st.markdown("<h1 style='text-align: center;'>AYS Attendance</h1>", unsafe_allow_html=True)
     add_bg_gradient()
