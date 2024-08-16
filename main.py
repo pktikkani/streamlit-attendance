@@ -49,6 +49,21 @@ def load_css():
       height: 3em;
       width: 100%;
   }
+  .custom-button {
+      vertical-align: middle;
+      font-size: 20px !important;
+      padding: 10px 20px !important;
+      background-color: #4CAF50 !important;
+      color: white !important;
+      border: none !important;
+      border-radius: 50px !important;
+      cursor: pointer !important;
+      text-decoration: none !important;
+      width: 100%;
+  }
+  .custom-button:hover {
+      background-color: #45a049 !important;
+  }
   </style>
   """, unsafe_allow_html=True)
 
@@ -80,10 +95,15 @@ def login():
         scope="openid"
     )
     st.session_state.auth_url = authorization_url
-
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
-        st.link_button("Admin Login", st.session_state.auth_url)
+        st.markdown("<div class='centered'>", unsafe_allow_html=True)
+        st.markdown(f"<a href='{st.session_state.auth_url}' class='custom-button'>Admin Login</a>", unsafe_allow_html=True)
+        st.markdown("</div>", unsafe_allow_html=True)
+
+    # col1, col2, col3 = st.columns([1, 2, 1])
+    # with col2:
+    #     st.link_button("Admin Login", st.session_state.auth_url)
 
 
 def callback():
