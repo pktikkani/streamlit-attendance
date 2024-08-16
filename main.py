@@ -87,23 +87,39 @@ def add_bg_gradient():
     st.query_params.clear()
 
 
+# def login():
+#     st.markdown("<h1 style='text-align: center;'>AYS Attendance</h1>", unsafe_allow_html=True)
+#     add_bg_gradient()
+#     authorization_url, state = client.create_authorization_url(
+#         OKTA_AUTHORIZATION_ENDPOINT,
+#         scope="openid"
+#     )
+#     st.session_state.auth_url = authorization_url
+#     col1, col2, col3 = st.columns([1, 2, 1])
+#     with col2:
+#         st.markdown("<div class='centered'>", unsafe_allow_html=True)
+#         st.markdown(f"<a href='{st.session_state.auth_url}' class='custom-button'>Admin Login</a>", unsafe_allow_html=True)
+#         st.markdown("</div>", unsafe_allow_html=True)
+#
+#     # col1, col2, col3 = st.columns([1, 2, 1])
+#     # with col2:
+#     #     st.link_button("Admin Login", st.session_state.auth_url)
+
+
+
 def login():
-    st.markdown("<h1 style='text-align: center;'>AYS Attendance</h1>", unsafe_allow_html=True)
     add_bg_gradient()
+    st.markdown("<h1 style='text-align: center;'>AYS Attendance</h1>", unsafe_allow_html=True)
+
     authorization_url, state = client.create_authorization_url(
         OKTA_AUTHORIZATION_ENDPOINT,
         scope="openid"
     )
     st.session_state.auth_url = authorization_url
+
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
-        st.markdown("<div class='centered'>", unsafe_allow_html=True)
-        st.markdown(f"<a href='{st.session_state.auth_url}' class='custom-button'>Admin Login</a>", unsafe_allow_html=True)
-        st.markdown("</div>", unsafe_allow_html=True)
-
-    # col1, col2, col3 = st.columns([1, 2, 1])
-    # with col2:
-    #     st.link_button("Admin Login", st.session_state.auth_url)
+        st.link_button("Login with Okta", st.session_state.auth_url)
 
 
 def callback():
