@@ -14,6 +14,7 @@ CLIENT_ID = os.environ['GOOGLE_CLIENT_ID']
 CLIENT_SECRET = os.environ['GOOGLE_CLIENT_SECRET']
 REDIRECT_URI = os.environ['GOOGLE_REDIRECT_URI']
 
+#DB Connection
 conn = sqlite3.connect('users.db')
 c = conn.cursor()
 
@@ -132,6 +133,7 @@ def callback():
         except Exception as e:
             exception(f"Failed to get access token or user email. Please try again. Error: {e}")
             st.error(f"Google Auth Error {e}")
+
 
 def logout():
     add_bg_gradient()
