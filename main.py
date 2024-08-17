@@ -130,8 +130,8 @@ def callback():
                 st.session_state.logged_in = True
                 st.success("Successfully logged in!")
         except Exception as e:
-            st.error(f"OAuth error: {e}")
-
+            exception(f"Failed to get access token or user email. Please try again. Error: {e}")
+            st.error(f"Google Auth Error {e}")
 
 def logout():
     add_bg_gradient()
