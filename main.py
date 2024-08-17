@@ -1,20 +1,18 @@
 import os
 from datetime import date
+from logging import exception
+
 import streamlit as st
-from authlib.integrations.base_client.errors import OAuthError
-from authlib.integrations.requests_client import OAuth2Session
 from dotenv import load_dotenv
 import sqlite3
+import asyncio
+from httpx_oauth.clients.google import GoogleOAuth2
 
 # Load environment variables and set up OAuth client
 load_dotenv('.env')
-REDIRECT_URI = os.environ['REDIRECT_URI']
-OKTA_CLIENT_ID = os.environ['OKTA_CLIENT_ID']
-OKTA_CLIENT_SECRET = os.environ['OKTA_CLIENT_SECRET']
-OKTA_AUTHORIZATION_ENDPOINT = os.environ['OKTA_AUTHORIZATION_ENDPOINT']
-OKTA_TOKEN_ENDPOINT = os.environ['OKTA_TOKEN_ENDPOINT']
-OKTA_USERINFO_ENDPOINT = os.environ['OKTA_USERINFO_ENDPOINT']
-client = OAuth2Session(OKTA_CLIENT_ID, OKTA_CLIENT_SECRET, redirect_uri=REDIRECT_URI)
+CLIENT_ID = os.environ['GOOGLE_CLIENT_ID']
+CLIENT_SECRET = os.environ['GOOGLE_CLIENT_SECRET']
+REDIRECT_URI = os.environ['GOOGLE_REDIRECT_URI']
 
 conn = sqlite3.connect('users.db')
 c = conn.cursor()
@@ -87,57 +85,51 @@ def add_bg_gradient():
     st.query_params.clear()
 
 
-# def login():
-#     st.markdown("<h1 style='text-align: center;'>AYS Attendance</h1>", unsafe_allow_html=True)
-#     add_bg_gradient()
-#     authorization_url, state = client.create_authorization_url(
-#         OKTA_AUTHORIZATION_ENDPOINT,
-#         scope="openid"
-#     )
-#     st.session_state.auth_url = authorization_url
-#     col1, col2, col3 = st.columns([1, 2, 1])
-#     with col2:
-#         st.markdown("<div class='centered'>", unsafe_allow_html=True)
-#         st.markdown(f"<a href='{st.session_state.auth_url}' class='custom-button'>Admin Login</a>", unsafe_allow_html=True)
-#         st.markdown("</div>", unsafe_allow_html=True)
-#
-#     # col1, col2, col3 = st.columns([1, 2, 1])
-#     # with col2:
-#     #     st.link_button("Admin Login", st.session_state.auth_url)
+async def get_authorization_url(client: GoogleOAuth2, redirect_uri: str):
+    authorization_url = await client.get_authorization_url(redirect_uri, scope=["profile", "email"])
+    return authorization_url
 
+
+async def get_access_token(client: GoogleOAuth2, redirect_uri: str, code: str):
+    token = await client.get_access_token(code, redirect_uri)
+    return token
+
+
+async def get_email(client: GoogleOAuth2, token: str):
+    user_id, user_email = await client.get_id_email(token)
+    return user_id, user_email
 
 
 def login():
     add_bg_gradient()
     st.markdown("<h1 style='text-align: center;'>AYS Attendance</h1>", unsafe_allow_html=True)
 
-    authorization_url, state = client.create_authorization_url(
-        OKTA_AUTHORIZATION_ENDPOINT,
-        scope="openid"
-    )
+    client: GoogleOAuth2 = GoogleOAuth2(CLIENT_ID, CLIENT_SECRET)
+    authorization_url = asyncio.run(
+        get_authorization_url(client, REDIRECT_URI))
     st.session_state.auth_url = authorization_url
 
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
-        st.link_button("Login with Okta", st.session_state.auth_url)
+        st.link_button("Google Login", st.session_state.auth_url)
 
 
 def callback():
+    client: GoogleOAuth2 = GoogleOAuth2(CLIENT_ID, CLIENT_SECRET)
     if 'code' in st.query_params:
         code = st.query_params['code']
         try:
             with st.spinner("Logging you in..."):
-                token = client.fetch_token(
-                    OKTA_TOKEN_ENDPOINT,
-                    code=code,
-                    scope="openid",
-                    grant_type="authorization_code"
-                )
-                userinfo = client.get(OKTA_USERINFO_ENDPOINT).json()
-                st.session_state['user'] = userinfo
+                token = asyncio.run(get_access_token(
+                    client, REDIRECT_URI, code))
+                user_id, user_email = asyncio.run(
+                    get_email(client, token['access_token']))
+                st.write(
+                    f"You're logged in as {user_email} and id is {user_id}")
+                st.session_state['user'] = user_email
                 st.session_state.logged_in = True
                 st.success("Successfully logged in!")
-        except OAuthError as e:
+        except Exception as e:
             st.error(f"OAuth error: {e}")
 
 
@@ -204,7 +196,7 @@ def main():
         callback()
 
     if st.session_state.logged_in:
-        st.sidebar.markdown(f"Welcome, {st.session_state['user'].get('name', 'Admin')}!")
+        st.sidebar.markdown(f"Welcome, {st.session_state['user']}!")
         pg = st.navigation(
             {
                 "Account": [logout_page],
