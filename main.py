@@ -8,6 +8,8 @@ import sqlite3
 
 # Load environment variables and set up OAuth client
 load_dotenv('.env')
+
+load_dotenv('.env')
 REDIRECT_URI = os.environ['REDIRECT_URI']
 OKTA_CLIENT_ID = os.environ['OKTA_CLIENT_ID']
 OKTA_CLIENT_SECRET = os.environ['OKTA_CLIENT_SECRET']
@@ -15,6 +17,7 @@ OKTA_AUTHORIZATION_ENDPOINT = os.environ['OKTA_AUTHORIZATION_ENDPOINT']
 OKTA_TOKEN_ENDPOINT = os.environ['OKTA_TOKEN_ENDPOINT']
 OKTA_USERINFO_ENDPOINT = os.environ['OKTA_USERINFO_ENDPOINT']
 client = OAuth2Session(OKTA_CLIENT_ID, OKTA_CLIENT_SECRET, redirect_uri=REDIRECT_URI)
+
 
 conn = sqlite3.connect('users.db')
 c = conn.cursor()
@@ -35,6 +38,7 @@ def show_emails():
     c.execute("SELECT email FROM registration")
     return [row[0] for row in c.fetchall()]
 
+
 # Custom CSS
 def load_css():
     st.markdown("""
@@ -42,35 +46,22 @@ def load_css():
   .big-font {
       font-size:30px !important;
       font-weight: bold;
-  }
+  } 
   .stButton>button {
       color: #4F8BF9;
       border-radius: 50px;
       height: 3em;
       width: 100%;
   }
-  .custom-button {
-      vertical-align: middle;
-      font-size: 20px !important;
-      padding: 10px 20px !important;
-      background-color: #4CAF50 !important;
-      color: white !important;
-      border: none !important;
-      border-radius: 50px !important;
-      cursor: pointer !important;
-      text-decoration: none !important;
-      width: 100%;
-  }
-  .custom-button:hover {
-      background-color: #45a049 !important;
-  }
   </style>
   """, unsafe_allow_html=True)
 
 
-# Initialize session state
 if "logged_in" not in st.session_state:
     st.session_state.logged_in = False
+
+if "credentials" not in st.session_state:
+    st.session_state.credentials = None
 
 
 def add_bg_gradient():
@@ -87,39 +78,18 @@ def add_bg_gradient():
     st.query_params.clear()
 
 
-# def login():
-#     st.markdown("<h1 style='text-align: center;'>AYS Attendance</h1>", unsafe_allow_html=True)
-#     add_bg_gradient()
-#     authorization_url, state = client.create_authorization_url(
-#         OKTA_AUTHORIZATION_ENDPOINT,
-#         scope="openid"
-#     )
-#     st.session_state.auth_url = authorization_url
-#     col1, col2, col3 = st.columns([1, 2, 1])
-#     with col2:
-#         st.markdown("<div class='centered'>", unsafe_allow_html=True)
-#         st.markdown(f"<a href='{st.session_state.auth_url}' class='custom-button'>Admin Login</a>", unsafe_allow_html=True)
-#         st.markdown("</div>", unsafe_allow_html=True)
-#
-#     # col1, col2, col3 = st.columns([1, 2, 1])
-#     # with col2:
-#     #     st.link_button("Admin Login", st.session_state.auth_url)
-
-
-
 def login():
-    add_bg_gradient()
     st.markdown("<h1 style='text-align: center;'>AYS Attendance</h1>", unsafe_allow_html=True)
-
+    add_bg_gradient()
     authorization_url, state = client.create_authorization_url(
         OKTA_AUTHORIZATION_ENDPOINT,
         scope="openid"
     )
     st.session_state.auth_url = authorization_url
-
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
-        st.link_button("Login with Okta", st.session_state.auth_url)
+        st.link_button("Admin Login", st.session_state.auth_url)
+
 
 
 def callback():
