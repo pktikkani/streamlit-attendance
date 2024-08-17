@@ -174,7 +174,8 @@ def main():
         callback()
 
     if st.session_state.logged_in:
-        st.sidebar.markdown(f"Welcome, {st.session_state['user'].get('name', 'Admin')}!")
+        print(st.session_state)
+        st.sidebar.markdown(f"Welcome, {st.session_state['user'].get('sub', 'Admin')}!")
         pg = st.navigation(
             {
                 "Account": [logout_page],
